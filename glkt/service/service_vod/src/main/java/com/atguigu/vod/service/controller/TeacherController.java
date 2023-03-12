@@ -49,7 +49,7 @@ public class TeacherController {
 
     @ApiOperation(value = "获取分页列表")
     @PostMapping("{page}/{limit}")
-    public Result index(@PathVariable Long page, @PathVariable Long limit, TeacherQueryVo teacherQueryVo){
+    public Result index(@PathVariable Long page, @PathVariable Long limit, @RequestBody(required = false) TeacherQueryVo teacherQueryVo){
         Page<Teacher> pageParam = new Page<>(page, limit);
         if (teacherQueryVo==null){
             Page<Teacher> page1 = teacherService.page(pageParam);
@@ -79,5 +79,44 @@ public class TeacherController {
 
     }
 
+    @ApiOperation(value = "新增")
+    @PostMapping("save")
+    public Result save(@RequestBody Teacher teacher){
+        boolean isSuccess = teacherService.save(teacher);
+        if(isSuccess) {
+            return Result.ok(null);
+        } else {
+            return Result.fail(null);
+        }
+    }
+
+    @ApiOperation(value = "获取")
+    @GetMapping("get/{id}")
+    public Result edit(@PathVariable Long id){
+        Teacher byId = teacherService.getById(id);
+        return Result.ok(byId);
+    }
+
+    @ApiOperation(value = "修改")
+    @PutMapping("update")
+    public Result updateById(@RequestBody Teacher teacher) {
+        boolean isSuccess = teacherService.updateById(teacher);
+        if(isSuccess) {
+            return Result.ok(null);
+        } else {
+            return Result.fail(null);
+        }
+    }
+
+    @ApiOperation(value = "根据id列表删除")
+    @DeleteMapping("batchRemove")
+    public Result batchRemove(@RequestBody List<String> ids) {
+        boolean isSuccess = teacherService.removeByIds(ids);if(isSuccess) {
+            return Result.ok(null);
+        } else {
+            return Result.fail(null);
+        }
+
+    }
 }
 
