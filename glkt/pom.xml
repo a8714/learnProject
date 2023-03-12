@@ -6,6 +6,8 @@
     <modules>
         <module>model</module>
         <module>service</module>
+        <module>common</module>
+        <module>common/service_utils</module>
 
     </modules>
     <parent>
