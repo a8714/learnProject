@@ -2,6 +2,7 @@ package com.atguigu.vod.service.controller;
 
 
 import com.atguigu.ggkt.model.vod.Teacher;
+import com.atguigu.result.Result;
 import com.atguigu.vod.service.service.TeacherService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,14 +29,18 @@ public class TeacherController {
 
     @ApiOperation("查询所有讲师")
     @GetMapping("/findAll")
-    public List<Teacher> findAll(){
-        return teacherService.list();
-    }
+    public Result findAll(){
+        List<Teacher> list = teacherService.list();
+        return Result.ok(list).message("查询数据成功");    }
     @ApiOperation("根据id删除讲师")
     @DeleteMapping("{id}")
-    public boolean removeById(  @PathVariable("id") Long id){
-        return teacherService.removeById(id);
-    }
+    public Result removeById(  @PathVariable("id") Long id){
+        boolean isSuccess = teacherService.removeById(id);
+        if(isSuccess) {
+            return Result.ok(null);
+        } else {
+            return Result.fail(null);
+        }    }
 
 }
 
