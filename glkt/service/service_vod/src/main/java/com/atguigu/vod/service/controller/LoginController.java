@@ -40,7 +40,7 @@ public class LoginController {
      * 退出
      * @return
      */
-    @PostMapping("logout")
+    @PostMapping ("logout")
     public Result logout(){
         return Result.ok(null);
     }
