@@ -29,6 +29,7 @@ import java.util.List;
 @Api(tags = "讲师操作controller")
 @RestController
 @RequestMapping(value = "/admin/vod/teacher")
+@CrossOrigin
 public class TeacherController {
     @Autowired
     private TeacherService teacherService;
@@ -110,6 +111,7 @@ public class TeacherController {
 
     @ApiOperation(value = "修改")
     @PutMapping("update")
+    @CrossOrigin
     public Result updateById(@RequestBody Teacher teacher) {
         boolean isSuccess = teacherService.updateById(teacher);
         if (isSuccess) {
