@@ -2,6 +2,7 @@ package com.atguigu.vod.service.controller;
 
 import com.atguigu.result.Result;
 import com.atguigu.vod.service.service.FileService;
+import com.atguigu.vod.service.service.SubjectService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -20,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUploadController {
     @Autowired
     private FileService fileService;
+    @Autowired
+    private SubjectService subjectService;
     /**
      * 文件上传
      */
@@ -30,5 +33,13 @@ public class FileUploadController {
             @RequestParam("file") MultipartFile file) {
         String uploadUrl = fileService.upload(file);
         return Result.ok(uploadUrl).message("文件上传成功");
+    }
+
+
+    @ApiOperation(value = "导入")
+    @PostMapping("importData")
+    public Result importData(MultipartFile file) {
+        subjectService.importDictData(file);
+        return Result.ok(null);
     }
 }

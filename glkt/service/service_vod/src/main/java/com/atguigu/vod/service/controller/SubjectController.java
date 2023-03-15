@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -35,6 +36,13 @@ public class SubjectController {
     public Result getChildSubject(@PathVariable Long id) {
         List<Subject> list = subjectService.selectList(id);
         return Result.ok(list);
+    }
+
+
+    @ApiOperation(value="导出")
+    @GetMapping(value = "/exportData")
+    public void exportData(HttpServletResponse response) {
+        subjectService.exportData(response);
     }
 }
 
