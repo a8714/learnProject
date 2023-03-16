@@ -2,6 +2,7 @@ package com.atguigu.vod.service.controller;
 
 
 import com.atguigu.ggkt.model.vod.Course;
+import com.atguigu.ggkt.vo.vod.CourseFormVo;
 import com.atguigu.ggkt.vo.vod.CourseQueryVo;
 import com.atguigu.result.Result;
 import com.atguigu.vod.service.service.CourseService;
@@ -42,6 +43,28 @@ public class CourseController {
         Page<Course> pageParam = new Page<>(page, limit);
         Map<String,Object> map = courseService.findPage(pageParam, courseQueryVo);
         return Result.ok(map);
+    }
+
+    //添加课程基本信息
+    @ApiOperation(value = "新增")
+    @PostMapping("save")
+    public Result save(@RequestBody CourseFormVo courseFormVo) {
+        Long courseId = courseService.saveCourseInfo(courseFormVo);
+        return Result.ok(courseId);
+    }
+
+    @ApiOperation(value = "获取")
+    @GetMapping("get/{id}")
+    public Result get(@PathVariable Long id) {
+        CourseFormVo course = courseService.getCourseFormVoById(id);
+        return Result.ok(course);
+    }
+
+    @ApiOperation(value = "修改")
+    @PutMapping("update")
+    public Result updateById(@RequestBody CourseFormVo courseFormVo) {
+        courseService.updateCourseById(courseFormVo);
+        return Result.ok(null);
     }
 }
 

@@ -1,16 +1,20 @@
 package com.atguigu.vod.service.service.impl;
 
 import com.atguigu.ggkt.model.vod.Course;
+import com.atguigu.ggkt.model.vod.CourseDescription;
 import com.atguigu.ggkt.model.vod.Subject;
 import com.atguigu.ggkt.model.vod.Teacher;
+import com.atguigu.ggkt.vo.vod.CourseFormVo;
 import com.atguigu.ggkt.vo.vod.CourseQueryVo;
 import com.atguigu.vod.service.mapper.CourseMapper;
+import com.atguigu.vod.service.service.CourseDescriptionService;
 import com.atguigu.vod.service.service.CourseService;
 import com.atguigu.vod.service.service.SubjectService;
 import com.atguigu.vod.service.service.TeacherService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -35,9 +39,12 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     @Autowired
     private SubjectService subjectService;
 
+    @Autowired
+    private CourseDescriptionService descriptionService;
+
     //课程列表
     @Override
-    public Map<String,Object> findPage(Page<Course> pageParam, CourseQueryVo courseQueryVo) {
+    public Map<String, Object> findPage(Page<Course> pageParam, CourseQueryVo courseQueryVo) {
         //获取条件值
         String title = courseQueryVo.getTitle();//名称
         Long subjectId = courseQueryVo.getSubjectId();//二级分类
@@ -45,17 +52,17 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         Long teacherId = courseQueryVo.getTeacherId();//讲师
         //封装条件
         QueryWrapper<Course> wrapper = new QueryWrapper<>();
-        if(!StringUtils.isEmpty(title)) {
-            wrapper.like("title",title);
+        if (!StringUtils.isEmpty(title)) {
+            wrapper.like("title", title);
         }
-        if(!StringUtils.isEmpty(subjectId)) {
-            wrapper.eq("subject_id",subjectId);
+        if (!StringUtils.isEmpty(subjectId)) {
+            wrapper.eq("subject_id", subjectId);
         }
-        if(!StringUtils.isEmpty(subjectParentId)) {
-            wrapper.eq("subject_parent_id",subjectParentId);
+        if (!StringUtils.isEmpty(subjectParentId)) {
+            wrapper.eq("subject_parent_id", subjectParentId);
         }
-        if(!StringUtils.isEmpty(teacherId)) {
-            wrapper.eq("teacher_id",teacherId);
+        if (!StringUtils.isEmpty(teacherId)) {
+            wrapper.eq("teacher_id", teacherId);
         }
         //调用方法查询
         Page<Course> pages = baseMapper.selectPage(pageParam, wrapper);
@@ -70,10 +77,10 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             this.getTeacherOrSubjectName(item);
         });
         //封装返回数据
-        Map<String,Object> map = new HashMap<>();
-        map.put("totalCount",totalCount);
-        map.put("totalPage",totalPage);
-        map.put("records",records);
+        Map<String, Object> map = new HashMap<>();
+        map.put("totalCount", totalCount);
+        map.put("totalPage", totalPage);
+        map.put("records", records);
         return map;
     }
 
@@ -81,18 +88,73 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     private Course getTeacherOrSubjectName(Course course) {
         //查询讲师名称
         Teacher teacher = teacherService.getById(course.getTeacherId());
-        if(teacher != null) {
-            course.getParam().put("teacherName",teacher.getName());
+        if (teacher != null) {
+            course.getParam().put("teacherName", teacher.getName());
         }
         //查询分类名称
         Subject subjectOne = subjectService.getById(course.getSubjectParentId());
-        if(subjectOne != null) {
-            course.getParam().put("subjectParentTitle",subjectOne.getTitle());
+        if (subjectOne != null) {
+            course.getParam().put("subjectParentTitle", subjectOne.getTitle());
         }
         Subject subjectTwo = subjectService.getById(course.getSubjectId());
-        if(subjectTwo != null) {
-            course.getParam().put("subjectTitle",subjectTwo.getTitle());
+        if (subjectTwo != null) {
+            course.getParam().put("subjectTitle", subjectTwo.getTitle());
         }
         return course;
+    }
+
+
+    //实现方法
+    //添加课程基本信息
+    @Override
+    public Long saveCourseInfo(CourseFormVo courseFormVo) {
+        //保存课程基本信息
+        Course course = new Course();
+        BeanUtils.copyProperties(courseFormVo, course);
+        baseMapper.insert(course);
+
+        //保存课程详情信息
+        CourseDescription courseDescription = new CourseDescription();
+        courseDescription.setDescription(courseFormVo.getDescription());
+        courseDescription.setCourseId(course.getId());
+        descriptionService.save(courseDescription);
+
+        //返回课程id
+        return course.getId();
+    }
+
+
+    //根据id获取课程信息
+    @Override
+    public CourseFormVo getCourseFormVoById(Long id) {
+        //从course表中取数据
+        Course course = baseMapper.selectById(id);
+        if(course == null){
+            return null;
+        }
+        //从course_description表中取数据
+        CourseDescription courseDescription = descriptionService.getBycourseId(id);
+        //创建courseInfoForm对象
+        CourseFormVo courseFormVo = new CourseFormVo();
+        BeanUtils.copyProperties(course, courseFormVo);
+        if(courseDescription != null){
+            courseFormVo.setDescription(courseDescription.getDescription());
+        }
+        return courseFormVo;
+    }
+
+    //根据id修改课程信息
+    @Override
+    public void updateCourseById(CourseFormVo courseFormVo) {
+        //修改课程基本信息
+        Course course = new Course();
+        BeanUtils.copyProperties(courseFormVo, course);
+        baseMapper.updateById(course);
+        //修改课程详情信息
+        CourseDescription courseDescription = descriptionService.getBycourseId(course.getId());
+        courseDescription.setDescription(courseFormVo.getDescription());
+        //description.setId(course.getId());
+        courseDescription.setCourseId(course.getId());
+        descriptionService.updateById(courseDescription);
     }
 }
