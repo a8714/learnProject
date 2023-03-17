@@ -111,5 +111,12 @@ public class MenuController {
         menuService.syncMenu();
         return Result.ok(null);
     }
+
+    @ApiOperation(value = "删除菜单")
+    @DeleteMapping("removeMenu")
+    public Result removeMenu() {
+        menuService.removeMenu();
+        return Result.ok(null);
+    }
 }
 
