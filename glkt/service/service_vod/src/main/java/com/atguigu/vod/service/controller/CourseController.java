@@ -7,6 +7,7 @@ import com.atguigu.ggkt.vo.vod.CoursePublishVo;
 import com.atguigu.ggkt.vo.vod.CourseQueryVo;
 import com.atguigu.result.Result;
 import com.atguigu.vod.service.service.CourseService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +15,7 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +29,7 @@ import java.util.Map;
 @Api(tags = "课程管理接口")
 @RestController
 @RequestMapping(value="/admin/vod/course")
-@CrossOrigin
+//@CrossOrigin
 public class CourseController {
     @Autowired
     private CourseService courseService;
@@ -94,6 +96,17 @@ public class CourseController {
     public Result remove(@PathVariable Long id) {
         courseService.removeCourseById(id);
         return Result.ok(null);
+    }
+
+    @ApiOperation("根据关键字查询课程")
+    @GetMapping("inner/findByKeyword/{keyword}")
+    public List<Course> findByKeyword(
+            @ApiParam(value = "关键字", required = true)
+            @PathVariable String keyword){
+        QueryWrapper<Course> queryWrapper = new QueryWrapper();
+        queryWrapper.like("title", keyword);
+        List<Course> list = courseService.list(queryWrapper);
+        return list;
     }
 }
 
