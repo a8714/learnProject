@@ -3,6 +3,8 @@ package com.atguigu.ggkt.wechat.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.atguigu.ggkt.wechat.service.MessageService;
 import com.atguigu.ggkt.wechat.utils.SHA1;
+import com.atguigu.result.Result;
+import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -97,5 +99,11 @@ public class MessageController {
         inputStream.close();
         inputStream = null;
         return map;
+    }
+
+    @GetMapping("/pushPayMessage")
+    public Result pushPayMessage() throws WxErrorException {
+        messageService.pushPayMessage(1L);
+        return Result.ok(null);
     }
 }

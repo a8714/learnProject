@@ -4,7 +4,10 @@ import com.alibaba.excel.util.CollectionUtils;
 import com.atguigu.CourseFeignClient;
 import com.atguigu.ggkt.model.vod.Course;
 import com.atguigu.ggkt.wechat.service.MessageService;
+import lombok.SneakyThrows;
 import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -151,5 +154,28 @@ public class MessageServiceImpl implements MessageService {
         text.append("<Content><![CDATA["+content+"]]></Content>");
         text.append("</xml>");
         return text;
+    }
+
+
+
+    //TODO 暂时写成固定值测试，后续完善
+    @SneakyThrows
+    @Override
+    public void pushPayMessage(long orderId) {
+        String openid = "om-Zv6QuSZnP90oud2NzPscULMuI";
+        WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+                .toUser(openid)//要推送的用户openid
+                .templateId("AYtFkXNeViCorhpR7fLe1-QXnJ2zEuO_4hA7n-bC3qU")//模板id
+                .url("http://ggkt2.vipgz1.91tunnel.com/#/pay/"+orderId)//点击模板消息要访问的网址
+                .build();
+        //3,如果是正式版发送消息，，这里需要配置你的信息
+        templateMessage.addData(new WxMpTemplateData("first", "亲爱的用户：您有一笔订单支付成功。", "#272727"));
+        templateMessage.addData(new WxMpTemplateData("keyword1", "1314520", "#272727"));
+        templateMessage.addData(new WxMpTemplateData("keyword2", "java基础课程", "#272727"));
+        templateMessage.addData(new WxMpTemplateData("keyword3", "2022-01-11", "#272727"));
+        templateMessage.addData(new WxMpTemplateData("keyword4", "100", "#272727"));
+        templateMessage.addData(new WxMpTemplateData("remark", "感谢你购买课程，如有疑问，随时咨询！", "#272727"));
+        String msg = wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);
+        System.out.println(msg);
     }
 }
